@@ -144,6 +144,7 @@ for iteration = 1:maxIterations
     drawnow;
 end
 
+% plot step responses
 figure;
 s = tf('s');
 Kp = globalBestPosition(1);
@@ -155,6 +156,6 @@ disp(['Ki = ' num2str(Ki)]);
 disp(['Kd = ' num2str(Kd)]);
 
 C = Kp + Ki/s + Kd*s;
-subplot(1, 2, 2); step(minreal(C*G/(1+C*G))); title('Without PID')   
-subplot(1, 2, 1); step(minreal(G)); title('With PID') 
+subplot(1, 2, 2); step(C*G/(1+C*G)); title('Without PID')   
+subplot(1, 2, 1); step(G); title('With PID') 
 
