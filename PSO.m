@@ -130,17 +130,17 @@ for iteration = 1:maxIterations
     cognitiveWeight = cognitiveWeight * cognitiveDecrease;
     socialWeight = socialWeight * socialIncrease;
 
-    % update best po 
+    % update best point 
     set(bestPlot, 'XData', globalBestPosition(1), ...
                   'YData', globalBestPosition(2), ...
                   'ZData', globalBestPosition(3));
 
+    % update particle points
     for i = 1:population
         set(particlePlots(i), 'XData', swarm{i}.position(1), ...
                               'YData', swarm{i}.position(2), ...
                               'ZData', swarm{i}.position(3));
     end
-
     drawnow;
 end
 
