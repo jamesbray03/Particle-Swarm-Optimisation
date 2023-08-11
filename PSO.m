@@ -3,18 +3,18 @@
 %% Parameters
 
 % transfer function
-G = tf([1], [2 3]);
+G = tf(1, [2 3]);
 
 % PSO parameters
 maxIterations = 300;      % maximum number of iterations
-population = 40;          % number of particles in the swarm
-inertiaWeight = 40;       % weight controlling the particle's inertia for momentum
+population = 50;          % number of particles in the swarm
+inertiaWeight = 50;       % weight controlling the particle's inertia for momentum
 inertiaDamping = 0.99;    % let inertia decrease over time
 cognitiveWeight = 2;      % weight for the cognitive (self-awareness) component
 cognitiveDecrease = 0.99; % let cognitive component decrease over time
 socialWeight = 5;         % weight for the social (swarm awareness) component
 socialIncrease = 1.3;     % let social component increase over time
-maxSpeed = 1;             % maximum speed of particle movement
+maxVelocity = 1;          % maximum speed of particle movement
 
 % control system parameters
 min_Kp = 0; max_Kp = 100;
@@ -22,7 +22,7 @@ min_Ki = 0; max_Ki = 5;
 min_Kd = 0; max_Kd = 40;
 
 % the domain and resolution for the step input
-time_domain = linspace(0, 200, 100);
+time_domain = linspace(0, 1000, 1000);
 
 %% Particle Initialisation
 
@@ -50,7 +50,7 @@ for i = 1:population
         swarm{i}.position(2), swarm{i}.position(3), 'r.', 'MarkerSize', 10);
 end
 
-%% Precompute variables
+%% Precompute Variables
 
 % initialise best value
 globalBestValue = Inf;
@@ -61,28 +61,52 @@ rand_social = socialWeight * rand(population, 3);
 
 % scale velocity based on controller domains
 velocityScaler = [max_Kp - min_Kp, max_Ki - min_Ki, max_Kd - min_Kd];
+velocityScaler = velocityScaler / norm(velocityScaler);
+
+reference = ones(1, numel(time_domain));
 
 %% Main PSO loop
 for iteration = 1:maxIterations
 
+    % batch properties for parallel processing
+    numBatches = maxNumCompThreads;
+    batchSize = ceil(population / numBatches);
+
+    batches = cell(1, numBatches);
+
+    % split swarm apart
+    for i = 1:numBatches
+        startIdx = (i - 1) * batchSize + 1;
+        endIdx = min(i * batchSize, population);
+        batches{i} = swarm(startIdx:endIdx);
+    end
+
     % update values
-    for i = 1:population
+    parfor batchNum = 1:numBatches
+        batch = batches{batchNum};
 
-        % fetch controllers
-        Kp = swarm{i}.position(1);
-        Ki = swarm{i}.position(2);
-        Kd = swarm{i}.position(3);
-        
-        % check if particle is in the domain
-        withinBounds = Kp >= min_Kp && Kp <= max_Kp && ...
-                       Ki >= min_Ki && Ki <= max_Ki && ...
-                       Kd >= min_Kd && Kd <= max_Kd;
-        if withinBounds
-            swarm{i}.value = ObjectiveFunction(Kp, Ki, Kd, G, time_domain);
-        else
-            swarm{i}.value = Inf;
+        for i = 1:numel(batch)
+            % fetch controllers
+            Kp = batch{i}.position(1);
+            Ki = batch{i}.position(2);
+            Kd = batch{i}.position(3);
+            
+            % check if particle is in the domain
+            if Kp >= min_Kp && Kp <= max_Kp && Ki >= min_Ki && Ki <= max_Ki && Kd >= min_Kd && Kd <= max_Kd
+                batch{i}.value = ObjectiveFunction(Kp, Ki, Kd, G, time_domain);
+            else
+                batch{i}.value = Inf;
+            end
         end
-
+    
+        batches{batchNum} = batch;
+    end
+    
+    % Reassign updated batches back to the swarm
+    for batchNum = 1:numBatches
+        startIdx = (batchNum - 1) * batchSize + 1;
+        endIdx = min(batchNum * batchSize, population);
+        swarm(startIdx:endIdx) = batches{batchNum};
     end
 
     % update best values
@@ -115,8 +139,8 @@ for iteration = 1:maxIterations
         
         % limit velocity
         velocityNorm = norm(p.velocity);
-        if velocityNorm > maxSpeed
-            p.velocity = p.velocity / velocityNorm * maxSpeed;
+        if velocityNorm > maxVelocity
+            p.velocity = (p.velocity / velocityNorm) * maxVelocity;
         end
         
         % scale velocity and move particles
@@ -156,6 +180,5 @@ disp(['Kd = ' num2str(Kd)]);
 % plot step responses
 figure;
 C = tf([Kd Kp Ki], [0 1 0]);
-subplot(1, 2, 2); step(C*G/(1+C*G)); title('Without PID')   
-subplot(1, 2, 1); step(G); title('With PID') 
-
+subplot(1, 2, 1); step(G); title('Without PID')   
+subplot(1, 2, 2); step(C*G/(1+C*G)); title('With PID') 
