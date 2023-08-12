@@ -6,15 +6,15 @@
 G = tf([5 3], [8 7 6 3]);
 
 % PSO parameters
-maxIterations = 300;      % maximum number of iterations
-population = 30;          % number of particles in the swarm
+maxIterations = 300;       % maximum number of iterations
+population = 30;           % number of particles in the swarm
 inertiaWeight = 100;       % weight controlling the particle's inertia for momentum
-inertiaDamping = 0.99;    % let inertia decrease over time
-cognitiveWeight = 5;      % weight for the cognitive (self-awareness) component
-cognitiveDecrease = 1;  % let cognitive component decrease over time
+inertiaDamping = 0.99;     % let inertia decrease over time
+cognitiveWeight = 5;       % weight for the cognitive (self-awareness) component
+cognitiveDecrease = 1;     % let cognitive component decrease over time
 socialWeight = 12;         % weight for the social (swarm awareness) component
 socialIncrease = 1.02;     % let social component increase over time
-maxVelocity = 1.2;          % maximum speed of particle movement
+maxVelocity = 1.2;         % maximum speed of particle movement
 
 % control system parameters
 min_Kp = 0; max_Kp = 100;
@@ -56,9 +56,8 @@ globalBestValue = Inf;
 velocityScaler = [max_Kp - min_Kp, max_Ki - min_Ki, max_Kd - min_Kd];
 velocityScaler = velocityScaler / norm(velocityScaler);
 
-reference = ones(1, numel(time_domain));
-
 %% Main PSO loop
+
 for iteration = 1:maxIterations
 
     % batch properties for parallel processing
@@ -161,6 +160,8 @@ for iteration = 1:maxIterations
     drawnow;
 end
 
+%% Output results
+
 % display controllers
 Kp = globalBestPosition(1);
 Ki = globalBestPosition(2);
@@ -175,3 +176,4 @@ figure;
 C = tf([Kd Kp Ki], [0 1 0]);
 subplot(1, 2, 1); step(G); title('Without PID')   
 subplot(1, 2, 2); step(C*G/(1+C*G)); title('With PID') 
+
