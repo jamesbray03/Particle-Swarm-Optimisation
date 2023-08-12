@@ -6,7 +6,7 @@
 G = tf([5 3], [8 7 6 3]);
 
 % PSO parameters
-maxIterations = 300;       % maximum number of iterations
+maxIterations = 200;       % maximum number of iterations
 population = 30;           % number of particles in the swarm
 inertiaWeight = 100;       % weight controlling the particle's inertia for momentum
 inertiaDamping = 0.99;     % let inertia decrease over time
