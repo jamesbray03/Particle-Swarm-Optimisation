@@ -3,26 +3,23 @@
 %% Parameters
 
 % transfer function
-G = tf(1, [2 3]);
+G = tf([5 3], [8 7 6 3]);
 
 % PSO parameters
 maxIterations = 300;      % maximum number of iterations
-population = 50;          % number of particles in the swarm
-inertiaWeight = 50;       % weight controlling the particle's inertia for momentum
+population = 30;          % number of particles in the swarm
+inertiaWeight = 100;       % weight controlling the particle's inertia for momentum
 inertiaDamping = 0.99;    % let inertia decrease over time
-cognitiveWeight = 2;      % weight for the cognitive (self-awareness) component
-cognitiveDecrease = 0.99; % let cognitive component decrease over time
-socialWeight = 5;         % weight for the social (swarm awareness) component
-socialIncrease = 1.3;     % let social component increase over time
-maxVelocity = 1;          % maximum speed of particle movement
+cognitiveWeight = 5;      % weight for the cognitive (self-awareness) component
+cognitiveDecrease = 1;  % let cognitive component decrease over time
+socialWeight = 12;         % weight for the social (swarm awareness) component
+socialIncrease = 1.02;     % let social component increase over time
+maxVelocity = 1.2;          % maximum speed of particle movement
 
 % control system parameters
 min_Kp = 0; max_Kp = 100;
-min_Ki = 0; max_Ki = 5;
-min_Kd = 0; max_Kd = 40;
-
-% the domain and resolution for the step input
-time_domain = linspace(0, 1000, 1000);
+min_Ki = 0; max_Ki = 10;
+min_Kd = 0; max_Kd = 50;
 
 %% Particle Initialisation
 
@@ -54,10 +51,6 @@ end
 
 % initialise best value
 globalBestValue = Inf;
-
-% precompute random numbers for velocity calculations
-rand_cognitive = cognitiveWeight * rand(population, 3);
-rand_social = socialWeight * rand(population, 3);
 
 % scale velocity based on controller domains
 velocityScaler = [max_Kp - min_Kp, max_Ki - min_Ki, max_Kd - min_Kd];
@@ -93,7 +86,7 @@ for iteration = 1:maxIterations
             
             % check if particle is in the domain
             if Kp >= min_Kp && Kp <= max_Kp && Ki >= min_Ki && Ki <= max_Ki && Kd >= min_Kd && Kd <= max_Kd
-                batch{i}.value = ObjectiveFunction(Kp, Ki, Kd, G, time_domain);
+                batch{i}.value = ObjectiveFunction(Kp, Ki, Kd, G);
             else
                 batch{i}.value = Inf;
             end
@@ -133,8 +126,8 @@ for iteration = 1:maxIterations
         p = swarm{i};
         
         % calculate velocity
-        cognitiveComponent = rand_cognitive(i, :) .* (p.bestPosition - p.position);
-        socialComponent = rand_social(i, :) .* (globalBestPosition - p.position);
+        cognitiveComponent = cognitiveWeight * rand(1, 3) .* (p.bestPosition - p.position);
+        socialComponent = socialWeight * rand(1, 3) .* (globalBestPosition - p.position);
         p.velocity = inertiaWeight * p.velocity + cognitiveComponent + socialComponent;
         
         % limit velocity
