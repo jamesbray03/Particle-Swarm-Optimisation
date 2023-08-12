@@ -4,11 +4,7 @@ This MATLAB script demonstrates the use of Particle Swarm Optimization (PSO) to 
 
 ## Control System and Transfer Function
 
-The control system is represented by a transfer function G(s). In this example, the transfer function is defined as:
-
-```
-G = tf([1], [2 3]);
-```
+The control system's plant is represented by a transfer function G(s). It assumes unity negative feedback and optimises PID controllers to reduce overall error. 
 
 ## PSO Parameters
 
@@ -19,7 +15,7 @@ Several parameters control the behavior of the PSO algorithm:
 - `inertiaWeight`, `inertiaDamping`: Parameters controlling particle inertia for momentum.
 - `cognitiveWeight`, `cognitiveDecrease`: Parameters controlling self-awareness component.
 - `socialWeight`, `socialIncrease`: Parameters controlling swarm awareness component.
-- `maxSpeed`: Maximum speed of particle movement.
+- `maxVelocity`: Maximum speed of particle movement.
 
 ## Control System Parameters
 
@@ -29,13 +25,15 @@ The PID controller parameters are constrained within specified ranges:
 - `min_Ki`, `max_Ki`: Minimum and maximum values for Ki.
 - `min_Kd`, `max_Kd`: Minimum and maximum values for Kd.
 
+If after running the program the swarm converges on an edge, consider changing your domain here.
+
 ## Objective Function
 
-The performance of each PID controller can be evaluated using an objective function. Different performance criteria can be selected by modifying the `ObjectiveFunction` function. Currently, the script uses the Integral of Absolute Error (IAE) as the performance metric. These functions are from [this paper](https://insightsociety.org/ojaseit/index.php/ijaseit/article/view/93/98).
+The performance of each PID controller can be evaluated using an objective function. Different performance criteria can be selected by modifying the `ObjectiveFunction` function. Currently, the script uses the Integral of Time x Absolute Error (ITAE) as the performance metric. These functions are from [this paper](https://insightsociety.org/ojaseit/index.php/ijaseit/article/view/93/98), and evaluate the total error in the step response.
 
 ## Visualization
 
-The optimization progress and particle movement are visualized in a 3D graph. The unity feedback step responses with and without the PID controller are shown after the iteration cycle is complete 
+The optimization progress and particle movement are visualized in a 3D graph. The unity feedback step responses with and without the PID controller are shown after the iteration cycle is complete.
 
 ## How to Use
 
