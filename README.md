@@ -4,7 +4,9 @@ This MATLAB script demonstrates the use of Particle Swarm Optimization (PSO) to 
 
 ## Control System and Transfer Function
 
-The control system's plant is represented by a transfer function G(s). It assumes unity negative feedback and optimises PID controllers to reduce overall error. 
+The control system's plant is represented by a transfer function G(s). It assumes unity negative feedback and optimises PID controllers to reduce overall error.
+
+![image](https://github.com/James-Bray19/PSO-Control-System-Tuning/assets/47334864/145edf92-d92e-439e-895b-e24c026abaa9)
 
 ## PSO Parameters
 
