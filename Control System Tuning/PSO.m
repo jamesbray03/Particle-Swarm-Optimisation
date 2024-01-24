@@ -3,7 +3,7 @@
 %% Parameters
 
 % transfer function
-G = tf([5 3], [8 7 6 3]);
+G = tf([1 1], [1 8 3 2]);
 
 % PSO parameters
 maxIterations = 200;       % maximum number of iterations
@@ -14,12 +14,12 @@ cognitiveWeight = 5;       % weight for the cognitive (self-awareness) component
 cognitiveDecrease = 1;     % let cognitive component decrease over time
 socialWeight = 12;         % weight for the social (swarm awareness) component
 socialIncrease = 1.02;     % let social component increase over time
-maxVelocity = 1.2;         % maximum speed of particle movement
+maxVelocity = 2;           % maximum speed of particle movement
 
 % control system parameters
-min_Kp = 0; max_Kp = 100;
-min_Ki = 0; max_Ki = 10;
-min_Kd = 0; max_Kd = 50;
+min_Kp = 0; max_Kp = 500;
+min_Ki = 0; max_Ki = 100;
+min_Kd = 0; max_Kd = 100;
 
 %% Particle Initialisation
 
@@ -171,9 +171,16 @@ disp(['Kp = ' num2str(Kp)]);
 disp(['Ki = ' num2str(Ki)]);
 disp(['Kd = ' num2str(Kd)]);
 
+C = tf([Kd Kp Ki], [0 1 0]);
+T1 = feedback(G, 1);
+T2 = feedback(C*G, 1);
+
+% output improvements
+disp(stepinfo(T1));
+disp(stepinfo(T2));
+
 % plot step responses
 figure;
-C = tf([Kd Kp Ki], [0 1 0]);
-subplot(1, 2, 1); step(G); title('Without PID')   
-subplot(1, 2, 2); step(C*G/(1+C*G)); title('With PID') 
+subplot(1, 2, 1); step(T1); title('Without PID')   
+subplot(1, 2, 2); step(T2); title('With PID') 
 
