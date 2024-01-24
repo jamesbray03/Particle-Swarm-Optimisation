@@ -1,5 +1,7 @@
 # Particle Swarm Optimization (PSO) for Global Minimum Search on a Height Map
 
+<img src="https://github.com/James-Bray19/Particle-Swarm-Optimisation/assets/47334864/984c8ade-95ad-437e-b0d2-7e5fced9e09c" style="display: block; margin: auto; width: 50%;" />
+
 This MATLAB script implements Particle Swarm Optimization (PSO) to find the global minimum of a height map. PSO is a powerful optimization technique inspired by the social behavior of birds and fish. In this script, particles traverse the search space to find the lowest point (global minimum) on a given height map.
 
 ## Parameters
