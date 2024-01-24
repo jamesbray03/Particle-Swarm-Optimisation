@@ -1,5 +1,7 @@
 # Particle Swarm Optimization (PSO) for PID Controller Optimization
 
+<img src="https://github.com/James-Bray19/Particle-Swarm-Optimisation/assets/47334864/306fa72b-28a0-4c57-89d6-41463600bbae" style="display: block; margin: auto; width: 75%;" />
+
 This MATLAB script demonstrates the use of Particle Swarm Optimization (PSO) to optimize PID controllers for a given control system. The goal is to find the PID controller parameters (Kp, Ki, and Kd) that result in optimal performance for the control system.
 
 ## Control System and Transfer Function
