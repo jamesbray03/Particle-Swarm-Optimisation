@@ -1,4 +1,4 @@
-%% PSO to find the global minimum of a height map
+%% PSO to control SeaBins to pick up the most litter
 
 %% Parameters
 maxIterations = 1000;      % maximum number of iterations (run time)
@@ -71,10 +71,11 @@ for iteration = 1:maxIterations
             bin.bestValue = bin.value;
             bin.bestPosition = bin.position;
         end
-
+        
+        % global values
         [~, linearIndex] = max(H(:));
         [rowIndex, colIndex] = ind2sub(size(H), linearIndex);
-        globalBestPosition = [ colIndex/100, rowIndex/100];
+        globalBestPosition = [colIndex/100, rowIndex/100];
 
         % pick up litter
         for row = max(1, binRow - cleanRadius):min(size(H, 1), binRow + cleanRadius)
@@ -86,7 +87,6 @@ for iteration = 1:maxIterations
             end
         end
         
-
         swarm{i} = bin;
     end
     
@@ -122,4 +122,3 @@ for iteration = 1:maxIterations
     drawnow;
     pause(0.01);
 end
-
