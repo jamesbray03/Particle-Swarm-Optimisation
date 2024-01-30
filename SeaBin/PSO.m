@@ -1,4 +1,4 @@
-%% PSO to find the global minimum of a height map
+%% PSO to clear the sea of litter
 
 %% Parameters
 maxIterations = 1000;      % maximum number of iterations (run time)
