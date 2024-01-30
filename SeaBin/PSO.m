@@ -1,17 +1,18 @@
-%% PSO to clear the sea of litter
+%% PSO to find the global minimum of a height map
 
 %% Parameters
 maxIterations = 1000;      % maximum number of iterations (run time)
 numBins = 5;               % number of bins in the swarm
-inertiaWeight = 80;        % weight controlling the particle's inertia for momentum
-inertiaDamping = 1;     % let inertia decrease over time
-cognitiveWeight = 10;      % weight for the cognitive (self-awareness) component
-cognitiveDecrease = 1; % let cognitive component decrease over time
+inertiaWeight = 200;       % weight controlling the particle's inertia for momentum
+inertiaDamping = 1;        % let inertia decrease over time
+cognitiveWeight = 60;      % weight for the cognitive (self-awareness) component
+cognitiveDecrease = 0.99;  % let cognitive component decrease over time
 socialWeight = 5;          % weight for the social (swarm awareness) component
-socialIncrease = 0;     % let social component increase over time
-maxSpeed = 0.2;            % maximum speed of particle movement
+socialIncrease = 1.001;    % let social component increase over time
+maxSpeed = 0.05;           % maximum speed of particle movement
 cleanSpeed = 0.1;          % amount of litter one bin can pick up in a location
-cleanRadius = 20;          % area bin can clean
+cleanRadius = 10;          % area bin can clean
+detectionRadius = 25;      % area it can detect litter
 
 % size of the area
 xSize = 0:0.01:3; 
@@ -35,6 +36,7 @@ customColorMap = colormap(parula);
 customColorMap(1, :) = [0, 0, 0];
 colormap(customColorMap);
 axis([0 3 0 3 -3 15]);
+view(2)
 axis square
 hold on;
 
@@ -58,7 +60,8 @@ for iteration = 1:maxIterations
 
         % handle out of bounds
         try
-            bin.value = -H(binRow, binCol);
+            bin.value = -mean(mean(H(max(1, binRow - detectionRadius):min(size(H, 1), binRow + detectionRadius), ...
+                          max(1, binCol - detectionRadius):min(size(H, 2), binCol + detectionRadius))));
         catch
             bin.value = Inf;
         end
@@ -67,20 +70,17 @@ for iteration = 1:maxIterations
         if bin.value < bin.bestValue
             bin.bestValue = bin.value;
             bin.bestPosition = bin.position;
-
-            % global values
-            if bin.bestValue <= globalBestValue
-                globalBestValue = bin.bestValue;
-                globalBestPosition = bin.bestPosition;
-            end
         end
+
+        [~, linearIndex] = max(H(:));
+        [rowIndex, colIndex] = ind2sub(size(H), linearIndex);
+        globalBestPosition = [ colIndex/100, rowIndex/100];
 
         % pick up litter
         for row = max(1, binRow - cleanRadius):min(size(H, 1), binRow + cleanRadius)
             for col = max(1, binCol - cleanRadius):min(size(H, 2), binCol + cleanRadius)
                 % check if the cell is cleaned
                 if (row - binRow)^2 + (col - binCol)^2 <= cleanRadius^2
-                    % Reduce the height of the cell
                     H(row, col) = max(0, H(row, col) - cleanSpeed);
                 end
             end
@@ -95,8 +95,8 @@ for iteration = 1:maxIterations
         bin = swarm{i};
 
         bin.velocity = inertiaWeight * bin.velocity + ...
-                     cognitiveWeight * (0.8 + 0.2*rand(1, 2)) .* (bin.bestPosition - bin.position) + ...
-                     socialWeight * (0.8 + 0.2*rand(1, 2)) .* (globalBestPosition - bin.position);
+                     cognitiveWeight * rand(1, 2) .* (bin.bestPosition - bin.position) + ...
+                     socialWeight * rand(1, 2) .* (globalBestPosition - bin.position);
         
         % limit velocity
         if norm(bin.velocity) > maxSpeed
@@ -122,3 +122,4 @@ for iteration = 1:maxIterations
     drawnow;
     pause(0.01);
 end
+
