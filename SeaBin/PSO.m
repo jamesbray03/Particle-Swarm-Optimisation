@@ -29,7 +29,6 @@ for i = 1:numBins
 end
 
 %% Display litter and bins
-% display terrain
 h = surf(xSize, ySize, H);
 h.EdgeColor = 'none';
 customColorMap = colormap(parula);
